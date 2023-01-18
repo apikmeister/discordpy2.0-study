@@ -1,8 +1,6 @@
 import discord
 import config
-import asyncio
 import requests
-import pymongo
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
@@ -11,19 +9,12 @@ from embed import *
 
 import db
 
-# client = pymongo.MongoClient("mongodb+srv://" + config.DB_USERNAME + ":" +
-#                              config.DB_PASSWORD + "@umt-bot.upexdyb.mongodb.net/?retryWrites=true&w=majority")
-# db = client.usersinfo
 login_url = ('https://pelajar.mynemo.umt.edu.my/portal_login_ldap.php')
 secure_url = ('https://pelajar.mynemo.umt.edu.my/exam/smp_x_all_bi.php')
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
-
-# @bot.command()
-# async def facts(ctx):
-#     print("test facts")
 
 
 @bot.command()
