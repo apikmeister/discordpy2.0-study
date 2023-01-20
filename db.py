@@ -3,11 +3,15 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from cryptography.fernet import Fernet
+import requests
 
 load_dotenv()
 KEY = (os.getenv('ENC_KEY')).encode('utf-8')
 MONGO_URI = os.getenv('MONGO_URI')
 client = MongoClient(MONGO_URI)
+
+login_url = ('https://pelajar.mynemo.umt.edu.my/portal_login_ldap.php')
+
 
 # access the database
 # db = client["mydb"]
@@ -29,6 +33,15 @@ def getUser(discord_id):
         'submit': 'Log Masuk'
     }
     return payload
+
+def getSession(payload):
+    s = requests.Session()
+    s.post(login_url, data=payload, verify=False, allow_redirects=True)
+    return s
+
+def getResponse(payload): 
+    response = requests.Session().post(login_url, data=payload, verify=False, allow_redirects=True)
+    return response
 
 def checkUser(username):
     if getUser(username):
