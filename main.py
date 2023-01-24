@@ -36,9 +36,6 @@ async def login(ctx, *, args=None):
                         'pwd': password,
                         'submit': 'Log Masuk'
                     }
-                    # db.getResponse(payload)
-                    # s = requests.Session()
-                    # response = s.post(login_url, data=payload, verify=False, allow_redirects=True)
                     if any(r.status_code == 302 for r in db.getResponse(payload).history):  # Successful login
                         db.addUser(discord_id, username, password)
                         embed = smallEmbed(
@@ -68,14 +65,26 @@ async def gpa(ctx):
     if (db.checkUser(discord_id)):
         user = db.getUser(discord_id)
         try:
+            wait_embed = smallEmbed("Please Wait", "GPA request is being processed...")
+            wait_message = await ctx.channel.send(embed=wait_embed)
+            
+            # Perform the request
             r = db.getSession(user).get(secure_url)
             bs = BeautifulSoup(r.content, 'html.parser')
             gpa_element = bs.find_all(
             'td', text='Grade Points Average (GPA)')
-            for all_siblings in gpa_element:
-                gpa = all_siblings.find_next_sibling()
-                embed = smallEmbed("Grade Points Average (GPA)", f"{gpa.text}")
-                await ctx.channel.send(embed=embed)
+            
+            gpa_text = ""
+            
+            for i, gpa_element in enumerate(gpa_element, 1):
+                gpa_text += f"Semester {i}: {gpa_element.find_next_sibling().text}\n"
+                
+            embed = smallEmbed("Grade Points Average (GPA)", gpa_text)
+            
+            await wait_message.delete()
+            
+            await ctx.channel.send(embed=embed)
+
         except Exception as e:
             print(e)
             embed = exceptionEmbed()
