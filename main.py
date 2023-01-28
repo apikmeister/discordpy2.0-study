@@ -1,10 +1,8 @@
 import discord
 import config
-import requests
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
-from discord.embeds import Embed
 from embed import *
 
 import db
@@ -17,7 +15,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-
+# add user
 @bot.command()
 async def login(ctx, *, args=None):
     discord_id = ctx.author.id
@@ -45,8 +43,7 @@ async def login(ctx, *, args=None):
                         embed = smallEmbed(
                             "Incorrect credentials!", "Your login credentials don't match an account in our system")
                         await ctx.channel.send(embed=embed)
-            except Exception as e:  # Error
-                print(e)
+            except Exception:  # Error
                 embed = exceptionEmbed()
                 await ctx.channel.send(embed=embed)
         else:  # Invalid arguments
@@ -54,41 +51,55 @@ async def login(ctx, *, args=None):
                 "Invalid arguments", "Please check +help for available commands")
             await ctx.channel.send(embed=embed)
     elif not isinstance(ctx.channel, discord.channel.DMChannel):  # Invalid channel
+        await ctx.message.delete()
         embed = smallEmbed(
             "Invalid channel", "Please use this command in DMs")
         await ctx.channel.send(embed=embed)
+        
 
-
+# check gpa
 @bot.command()
 async def gpa(ctx):
     discord_id = ctx.author.id
     if (db.checkUser(discord_id)):
         user = db.getUser(discord_id)
         try:
-            wait_embed = smallEmbed("Please Wait", "GPA request is being processed...")
-            wait_message = await ctx.channel.send(embed=wait_embed)
+            if any(r.status_code == 302 for r in db.getResponse(user).history):  # Successful login
             
-            # Perform the request
-            r = db.getSession(user).get(secure_url)
-            bs = BeautifulSoup(r.content, 'html.parser')
-            gpa_element = bs.find_all(
-            'td', text='Grade Points Average (GPA)')
+                wait_embed = smallEmbed("Please Wait", "GPA request is being processed...")
+                wait_message = await ctx.channel.send(embed=wait_embed)
             
-            gpa_text = ""
+                # Perform the request
+                r = db.getSession(user).get(secure_url)
+                bs = BeautifulSoup(r.content, 'html.parser')
+                gpa_element = bs.find_all(
+                'td', text='Grade Points Average (GPA)')
             
-            for i, gpa_element in enumerate(gpa_element, 1):
-                gpa_text += f"Semester {i}: {gpa_element.find_next_sibling().text}\n"
+                gpa_text = ""
+            
+                for i, gpa_element in enumerate(gpa_element, 1):
+                    gpa_text += f"Semester {i}: {gpa_element.find_next_sibling().text}\n"
                 
-            embed = smallEmbed("Grade Points Average (GPA)", gpa_text)
+                embed = smallEmbed("Grade Points Average (GPA)", gpa_text)
             
-            await wait_message.delete()
+                await wait_message.delete() # Delete the wait message
             
-            await ctx.channel.send(embed=embed)
+                await ctx.channel.send(embed=embed)
+                
+            else:
+                
+                embed = smallEmbed("Update Password!","/updatepass <username> <updated password>")
+                await ctx.channel.send(embed=embed)
+                return
 
-        except Exception as e:
-            print(e)
+        except Exception:
             embed = exceptionEmbed()
             await ctx.channel.send(embed=embed)
+    else:
+        embed=smallEmbed("Add user!","/adduser <username> <password>")
+        await ctx.author.send(embed=embed)
+
+
 
 
 bot.run(config.TOKEN)
