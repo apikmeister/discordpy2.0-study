@@ -66,15 +66,62 @@ async def deluser(ctx):
             embed = smallEmbed(
                 "User deleted!", "User has been succesfully deleted")
             await ctx.channel.send(embed=embed)
-        except Exception as e:  # Error
-            print(e)
+        except Exception:  # Error
             embed = exceptionEmbed()
             await ctx.channel.send(embed=embed)
     else:
         embed = smallEmbed(
             "User not found", "Please check +help for available commands")
-        await ctx.channel.send(embed=embed)  
-    
+        await ctx.channel.send(embed=embed)
+
+
+@bot.command()
+async def updatepass(ctx, *, args=None):
+    discord_id = ctx.author.id
+    if isinstance(ctx.channel, discord.channel.DMChannel) and ctx.author != bot.user:
+        if args != None and len(args.split()) == 2:
+            username, password = args.split()
+            try:  # Check if user exists
+                if (db.checkUser(discord_id)):
+                    user = db.getUser(discord_id)
+                    if (user['pwd'] == password):
+                        embed = smallEmbed(
+                            "Password unchanged!", "You have entered the same password!")
+                        await ctx.channel.send(embed=embed)
+                        return
+                    else:
+                        payload = {
+                            'login': 'student',
+                            'uid': username,
+                            'pwd': password,
+                            'submit': 'Log Masuk'
+                        }
+                        if any(r.status_code == 302 for r in db.getResponse(payload).history):  # Successful login
+                            db.updatePass(discord_id, username, password)
+                            embed = smallEmbed(
+                                "Password Updated!", "Password has been updated successfully!")
+                            await ctx.channel.send(embed=embed)
+                        else:  # Incorrect credentials
+                            embed = smallEmbed(
+                                "Incorrect credentials!", "Your login credentials don't match an account in our system!")
+                            await ctx.channel.send(embed=embed)
+                else:   # User not found
+                    embed = smallEmbed(
+                        "User not found", "Please check +help for available commands")
+                    await ctx.channel.send(embed=embed)
+            except Exception:  # Error
+                embed = exceptionEmbed()
+                await ctx.channel.send(embed=embed)
+        else:  # Invalid arguments
+            embed = smallEmbed(
+                "Invalid arguments", "Please check +help for available commands")
+            await ctx.channel.send(embed=embed)
+    elif not isinstance(ctx.channel, discord.channel.DMChannel):  # Invalid channel
+        await ctx.message.delete()
+        embed = smallEmbed(
+            "Invalid channel", "Please use this command in DMs")
+        await ctx.channel.send(embed=embed)
+        
 
 # check gpa
 @bot.command()

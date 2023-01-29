@@ -13,8 +13,6 @@ client = MongoClient(MONGO_URI)
 login_url = ('https://pelajar.mynemo.umt.edu.my/portal_login_ldap.php')
 
 
-# access the database
-# db = client["mydb"]
 users_collection = client.usersinfo.users
 
 def encryptpass(password):
@@ -60,8 +58,8 @@ def addUser(discord_id ,username, password):
         users_collection.insert_one(user)
         return True
     
-def updatePass(username, password):
-    if checkUser(username):
+def updatePass(discord_id, username, password):
+    if checkUser(discord_id):
         users_collection.update_one(
             {'username': username},
             {"$set":{'password': password}})
