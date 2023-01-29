@@ -43,8 +43,8 @@ def getResponse(payload):
     response = requests.Session().post(login_url, data=payload, verify=False, allow_redirects=True)
     return response
 
-def checkUser(username):
-    if getUser(username):
+def checkUser(discord_id):
+    if getUser(discord_id):
         return True
     else:
         return False
@@ -62,14 +62,13 @@ def addUser(discord_id ,username, password):
     
 def updatePass(username, password):
     if checkUser(username):
-        # password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         users_collection.update_one(
             {'username': username},
             {"$set":{'password': password}})
         return True
     
-def deleteUser(username):
-    if checkUser(username):
-        users_collection.delete_one({"username": username})
+def deleteUser(discord_id):
+    if checkUser(discord_id):
+        users_collection.delete_one({"discord_id": discord_id})
         return True
 
