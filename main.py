@@ -10,7 +10,6 @@ import db
 
 load_dotenv()
 BOT_TOKEN = (os.getenv('BOT_TOKEN'))
-LOGIN_URL = (os.getenv('LOGIN_URL'))
 GPA_URL = (os.getenv('GPA_URL'))
 
 intents = discord.Intents.default()
@@ -161,7 +160,8 @@ async def gpa(ctx):
                 await ctx.channel.send(embed=embed)
                 return
 
-        except Exception:
+        except Exception as e:
+            print(e)
             embed = exceptionEmbed()
             await ctx.channel.send(embed=embed)
     else:

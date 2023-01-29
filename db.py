@@ -10,7 +10,8 @@ KEY = (os.getenv('ENC_KEY')).encode('utf-8')
 MONGO_URI = os.getenv('MONGO_URI')
 client = MongoClient(MONGO_URI)
 
-login_url = ('https://pelajar.mynemo.umt.edu.my/portal_login_ldap.php')
+LOGIN_URL = (os.getenv('LOGIN_URL'))
+
 
 
 users_collection = client.usersinfo.users
@@ -34,11 +35,11 @@ def getUser(discord_id):
 
 def getSession(payload):
     s = requests.Session()
-    s.post(login_url, data=payload, verify=False, allow_redirects=True)
+    s.post(LOGIN_URL, data=payload, verify=False, allow_redirects=True)
     return s
 
 def getResponse(payload): 
-    response = requests.Session().post(login_url, data=payload, verify=False, allow_redirects=True)
+    response = requests.Session().post(LOGIN_URL, data=payload, verify=False, allow_redirects=True)
     return response
 
 def checkUser(discord_id):
