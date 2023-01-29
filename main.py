@@ -1,5 +1,6 @@
 import discord
-import config
+import os
+from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
@@ -7,13 +8,15 @@ from embed import *
 
 import db
 
-secure_url = ('https://pelajar.mynemo.umt.edu.my/exam/smp_x_all_bi.php')
-login_url = ('https://pelajar.mynemo.umt.edu.my/portal_login_ldap.php')
-
+load_dotenv()
+BOT_TOKEN = (os.getenv('BOT_TOKEN'))
+LOGIN_URL = (os.getenv('LOGIN_URL'))
+GPA_URL = (os.getenv('GPA_URL'))
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
+bot.remove_command('help')
 
 # add user
 @bot.command()
@@ -136,7 +139,7 @@ async def gpa(ctx):
                 wait_message = await ctx.channel.send(embed=wait_embed)
             
                 # Perform the request
-                r = db.getSession(user).get(secure_url)
+                r = db.getSession(user).get(GPA_URL)
                 bs = BeautifulSoup(r.content, 'html.parser')
                 gpa_element = bs.find_all(
                 'td', text='Grade Points Average (GPA)')
@@ -168,4 +171,4 @@ async def gpa(ctx):
 
 
 
-bot.run(config.TOKEN)
+bot.run(BOT_TOKEN)
