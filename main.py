@@ -160,8 +160,7 @@ async def gpa(ctx):
                 await ctx.channel.send(embed=embed)
                 return
 
-        except Exception as e:
-            print(e)
+        except Exception:
             embed = exceptionEmbed()
             await ctx.channel.send(embed=embed)
     else:
