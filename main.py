@@ -13,7 +13,7 @@ login_url = ('https://pelajar.mynemo.umt.edu.my/portal_login_ldap.php')
 
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 # add user
 @bot.command()
@@ -23,7 +23,7 @@ async def login(ctx, *, args=None):
         if args != None and len(args.split()) == 2:
             username, password = args.split()
             try:  # Check if user exists
-                if (db.checkUser(username)):
+                if (db.checkUser(discord_id)):
                     embed = smallEmbed(
                         "User already exists", "Please check +help for available commands")
                     await ctx.channel.send(embed=embed)
@@ -57,6 +57,25 @@ async def login(ctx, *, args=None):
         await ctx.channel.send(embed=embed)
         
 
+@bot.command()
+async def deluser(ctx):
+    discord_id = ctx.author.id
+    if (db.checkUser(discord_id)):
+        try:  # Check if user exists
+            db.deleteUser(discord_id)
+            embed = smallEmbed(
+                "User deleted!", "User has been succesfully deleted")
+            await ctx.channel.send(embed=embed)
+        except Exception as e:  # Error
+            print(e)
+            embed = exceptionEmbed()
+            await ctx.channel.send(embed=embed)
+    else:
+        embed = smallEmbed(
+            "User not found", "Please check +help for available commands")
+        await ctx.channel.send(embed=embed)  
+    
+
 # check gpa
 @bot.command()
 async def gpa(ctx):
@@ -88,7 +107,7 @@ async def gpa(ctx):
                 
             else:
                 
-                embed = smallEmbed("Update Password!","/updatepass <username> <updated password>")
+                embed = smallEmbed("Update Password!","!updatepass <username> <updated password>")
                 await ctx.channel.send(embed=embed)
                 return
 
@@ -96,7 +115,7 @@ async def gpa(ctx):
             embed = exceptionEmbed()
             await ctx.channel.send(embed=embed)
     else:
-        embed=smallEmbed("Add user!","/adduser <username> <password>")
+        embed = smallEmbed("Add user!","!adduser <username> <password>")
         await ctx.author.send(embed=embed)
 
 
