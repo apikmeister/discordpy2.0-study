@@ -17,6 +17,11 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command('help')
 
+@bot.event
+async def on_ready():
+    await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="your grades"))
+    print('Bot is ready')
+
 # add user
 @bot.command()
 async def login(ctx, *, args=None):
