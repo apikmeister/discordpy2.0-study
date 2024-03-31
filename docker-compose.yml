@@ -1,0 +1,12 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "4000:80"
+    environment:
+      - BOT_TOKEN = ""
+      - GPA_URL = 
+      - MONGO_URI = ""
+      - LOGIN_URL = 
+      - ENC_KEY = ""
